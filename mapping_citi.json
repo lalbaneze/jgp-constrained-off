@@ -1,0 +1,666 @@
+{
+  "ALEGRIA I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "ALEGRIA II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CATAVENTOS ACARAÚ I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CATAVENTOS DO ACARAÚ I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ACARAÚ II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ACAUÃ": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. AFONSO BEZERRA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ANEMUS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ARACATI II": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. ARAÇÁS": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. AREIA BRANCA": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. ARIZONA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ASA BRANCA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ATLÂNTICA": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. AVENTURA": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. BABILÔNIA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. BABILÔNIA CENTRO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. BABILÔNIA SUL": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. BAIXA DO FEIJÃO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. BLOCO SUL": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. BOM JARDIM": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. BRISA POTIGUAR I": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. BROTAS DE MACAÚBAS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. BW GUIRAPÁ I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. BW GUIRAPÁ II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CABEÇO PRETO II": {
+    "empresa": "Equatorial",
+    "tipo": "EOL"
+  },
+  "CONJ. CACIMBAS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CAETITÉ": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. CAETITÉ 123": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CAETITÉ A": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CAETITÉ NORTE": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CAETÉS II": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. CAJU": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. CALANGO 1": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CALANGO 2": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CALANGO 3": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CAMPO DOS VENTOS": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. CAMPO FORMOSO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CAMPO LARGO": {
+    "empresa": "Engie",
+    "tipo": "EOL"
+  },
+  "CONJ. CAMPO LARGO 2": {
+    "empresa": "Engie",
+    "tipo": "EOL"
+  },
+  "CONJ. CANUDOS I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CARNAÚBAS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CASA NOVA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CERRO CHATO": {
+    "empresa": "Eletrobras",
+    "tipo": "EOL"
+  },
+  "CONJ. CHAFARIZ NORTE": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CHAFARIZ SUL I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CHAFARIZ SUL II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CHAPADA I": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. CHAPADA II": {
+    "empresa": "Eletrobras",
+    "tipo": "EOL"
+  },
+  "CONJ. CHAPADA III": {
+    "empresa": "Eletrobras",
+    "tipo": "EOL"
+  },
+  "CONJ. CRISTAL": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CRISTALÂNDIA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CUMARU": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CURRAL NOVO DO PIAUI II 500 KV": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CURRAL NOVO DO PIAUÍ II 230 KV": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. CURVA DOS VENTOS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. CUTIA": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. DELFINA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. EOL. BROTAS DE MACAÚBAS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. EOL. VENTOS SANTA EUGÊNIA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. EÓLICO CAMPO LARGO": {
+    "empresa": "Engie",
+    "tipo": "EOL"
+  },
+  "CONJ. FAÍSA": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. FOLHA LARGA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. FOLHA LARGA SUL": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. GAMELEIRA": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. GENTIO DO OURO I": {
+    "empresa": "Serena",
+    "tipo": "EOL"
+  },
+  "CONJ. GPEXPAN": {
+    "empresa": "Eletrobras",
+    "tipo": "EOL"
+  },
+  "CONJ. ICARAÍ": {
+    "empresa": "Tupi",
+    "tipo": "EOL"
+  },
+  "CONJ. IGAPORÃ II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. IGAPORÃ III 500 KV": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ITAREMA V": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. JANDAIA": {
+    "empresa": "Eletrobras",
+    "tipo": "EOL"
+  },
+  "CONJ. JANDAÍRA I": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. JANDAÍRA III": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. JERUSALÉM": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. KAIROS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. LAGOA DO BARRO I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. LAGOA DOS BARROS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. LAGOA DOS VENTOS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. LARANJEIRAS": {
+    "empresa": "Serena",
+    "tipo": "EOL"
+  },
+  "CONJ. LIVRAMENTO 3": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MACACOS": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. MANGUE SECO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MARMELEIRO 2": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MODELO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MONTE DO RONCA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MONTE VERDE": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MORRO DO CHAPÉU SUL": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MORRO DO CHAPÉU SUL II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MORRO DOS VENTOS": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. MORRO DOS VENTOS II": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. MORRÃO": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. MOSSORÓ II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. MUNDO NOVO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. NOVO HORIZONTE": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. OESTE SERIDÓ": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. OITIS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. OLHO D'ÁGUA": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. OUROLÂNDIA II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. PAPAGAIOS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. PARANATAMA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. PAULINO NEVES": {
+    "empresa": "Serena",
+    "tipo": "EOL"
+  },
+  "CONJ. PEDRA BRANCA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. PEDRA CHEIROSA": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. PELOURINHO": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. PINDAÍ II 230 KV": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. PITOMBEIRA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. QUINTA 138 KV": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. QUINTA 69 KV": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. RENASCENÇA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. RENASCENÇA V": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. RIACHÃO": {
+    "empresa": "Tupi",
+    "tipo": "EOL"
+  },
+  "CONJ. RIO DO VENTO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. RIO DO VENTO EXPANSÃO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SANTA CLARA": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "CONJ. SANTA EUGÊNIA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SANTA ROSA MUNDO NOVO": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. SANTA ROSÁLIA": {
+    "empresa": "Equatorial",
+    "tipo": "EOL"
+  },
+  "CONJ. SANTA VITÓRIA DO PALMAR": {
+    "empresa": "Serena",
+    "tipo": "EOL"
+  },
+  "CONJ. SANTO AGOSTINHO": {
+    "empresa": "Engie",
+    "tipo": "EOL"
+  },
+  "CONJ. SANTO INÁCIO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA AZUL": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DA BABILÔNIA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DAS ALMAS II 500 KV": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DE SANTANA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DE SANTANA 1 E 2": {
+    "empresa": "Equatorial",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DE SANTANA 3": {
+    "empresa": "Equatorial",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO ASSURUÁ": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO MATO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO MEL A": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO MEL B": {
+    "empresa": "Equatorial",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO MEL II A": {
+    "empresa": "Copel",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO MEL II B": {
+    "empresa": "Equatorial",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO SERIDÓ": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERRA DO TIGRE": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SERROTE A": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SÃO BASÍLIO (EÓLICO)": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SÃO CLEMENTE": {
+    "empresa": "Equatorial",
+    "tipo": "EOL"
+  },
+  "CONJ. SÃO MIGUEL": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. SÃO ROQUE": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. TACARATU (EÓLICO)": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. TACARATU II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. TAMBORIL II": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. TANQUE NOVO": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. TAÍBA": {
+    "empresa": "Tupi",
+    "tipo": "EOL"
+  },
+  "CONJ. TERRA SANTA": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. TRAIRÍ": {
+    "empresa": "Engie",
+    "tipo": "EOL"
+  },
+  "CONJ. TUCANO": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. UMARI": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. UMBURANAS": {
+    "empresa": "Engie",
+    "tipo": "EOL"
+  },
+  "CONJ. UNIÃO DOS VENTOS": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. VENTOS DA BAHIA": {
+    "empresa": "Serena",
+    "tipo": "EOL"
+  },
+  "CONJ. VENTOS DE SÃO VITOR": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. VIAMÃO 3": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ. ÁGUA DOCE": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJ.SERRA DO MEL A": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "CONJUNTO EÓLICO CURRAL NOVO DO PIAUI II 230KV": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "ELEBRÁS CIDREIRA 1": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "EÓLICA CATAVENTOS DO ACARAÚ I": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "ICARAIZINHO": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "MALHADINHA 1": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  },
+  "MIASSABA 3": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "PRAIA FORMOSA": {
+    "empresa": "CPFL",
+    "tipo": "EOL"
+  },
+  "REI DOS VENTOS 1": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "REI DOS VENTOS 3": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "XANGRI-LÁ": {
+    "empresa": "nan",
+    "tipo": "EOL"
+  }
+}
