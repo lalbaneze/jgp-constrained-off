@@ -2,7 +2,7 @@ name: Update PLD + ONS
 
 on:
   schedule:
-    - cron: "0 10 * * *"   # 10:00 UTC = 07:00 Brasil (-03)
+    - cron: "0 10 * * *" # 10:00 UTC = 07:00 Brasil (-03)
   workflow_dispatch: {}
 
 permissions:
@@ -26,14 +26,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Update PLD (CCEE)
+        working-directory: pld_ccee
         run: |
-          cd pld_ccee
           python src/update_pld_2025.py
 
       - name: Export PLD JSON to dashboard/data
-      working-directory: coff_eolica_2025
-      run: |
-        python export_pld_json.py
+        run: |
+          python export_pld_json.py
 
       - name: Update COFF monthly (ONS)
         working-directory: dashboard
