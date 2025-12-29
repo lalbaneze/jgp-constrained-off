@@ -35,8 +35,9 @@ jobs:
           python export_pld_json.py
 
       - name: Update COFF monthly (ONS)
+        working-directory: dashboard
         run: |
-          python dashboard/atualizar_coff_monthly.py
+          python atualizar_coff_monthly.py
 
       - name: Commit and push if changed
         run: |
