@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Constrained-off — Eólica (ONS)</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+  <style>
+  :root{
+    --bg:#071021;          /* azul marinho bem escuro */
+    --card:#0b1a33;        /* navy card */
+    --card2:#0a1730;
+    --border:#123158;      /* navy border */
+    --text:#ffffff;        /* branco */
+    --muted:#b9c7de;       /* cinza-azulado */
+    --accent:#22c55e;      /* verde */
+    --accent2:#16a34a;
+    --input:#061225;       /* navy input */
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    background: radial-gradient(1200px 600px at 20% 0%, #0b1a33 0%, var(--bg) 55%);
+    color:var(--text);
+  }
+  .container{max-width:1200px;margin:0 auto;padding:22px}
+  h1{font-size:28px;margin:0 0 6px 0;letter-spacing:.2px}
+  h2{margin:0 0 12px 0}
+  small{color:var(--muted)}
+
+  .card{
+    background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+    border:1px solid rgba(18,49,88,.7);
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,select{
+    width:100%;
+    padding:10px 10px;
+    background: var(--input);
+    color: var(--text);
+    border:1px solid rgba(18,49,88,.9);
+    border-radius:10px;
+    outline:none;
+  }
+  input::placeholder{color:rgba(185,199,222,.7)}
+  input:focus,select:focus{
+    border-color: rgba(34,197,94,.85);
+    box-shadow: 0 0 0 3px rgba(34,197,94,.15);
+  }
+
+  button{
+    padding:10px 14px;
+    border-radius:12px;
+    border:1px solid rgba(34,197,94,.55);
+    background: rgba(34,197,94,.12);
+    color: var(--text);
+    cursor:pointer;
+    font-weight:600;
+  }
+  button:hover{
+    background: rgba(34,197,94,.18);
+    border-color: rgba(34,197,94,.8);
+  }
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .chart{height:420px}
+
+  /* KPIs */
+  .kpi{
+    font-size:22px;
+    font-weight:800;
+    margin-top:6px;
+  }
+  .kpiAccent{
+    color: var(--accent);
+  }
+  .topRow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border:1px solid rgba(18,49,88,.9);
+    border-radius:999px;
+    background: rgba(6,18,37,.7);
+    color: var(--muted);
+  }
+</style>
+</head>
+
+<body>
+<div style="padding:10px;background:#ff0;color:#000;font-weight:700;">
+</div>
+<div class="container">
+
+  <h1>Constrained-off — Eólica (ONS)</h1>
+  <p><small>Lê automaticamente: ./data/coff_eolica_monthly.csv</small></p>
+
+  <div class="card">
+    <span id="status">Carregando…</span>
+    <button id="btnReload" style="float:right">Recarregar</button>
+  </div>
+
+  <div class="card">
+    <h2>Filtros</h2>
+    <div class="grid">
+
+      <div>
+        <label>Modalidade</label>
+        <select id="reason">
+          <option value="ALL">Todas</option>
+          <option value="REL">REL</option>
+          <option value="ENE">ENE</option>
+          <option value="CNF">CNF</option>
+          <option value="SEM">SEM</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tipo</label>
+        <select id="tipo">
+          <option value="ALL">Todos</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Empresa</label>
+        <select id="company" multiple size="5"></select>
+<small>Ctrl para selecionar várias empresas</small>
+
+      </div>
+
+      <div>
+        <label>Nome da usina (buscar e selecionar)</label>
+<input id="idSearch" placeholder="buscar usina...">
+<select id="idons" multiple size="5"></select>
+
+        <small>Ctrl para selecionar vários</small>
+      </div>
+
+    </div>
+
+    <div class="grid2" style="margin-top:12px">
+      <div>
+        <label>Mês inicial</label>
+        <select id="fromMonth"></select>
+      </div>
+      <div>
+        <label>Mês final</label>
+        <select id="toMonth"></select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <button id="apply" class="btn">Aplicar</button>
+<button id="clear" class="btn">Limpar</button>
+
+    </div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:12px">
+  <div class="card">
+    <h3>% corte</h3>
+    <div id="kpiPct" class="kpi kpiAccent">—</div>
+  </div>
+
+  <div class="card">
+    <h3>Corte (MWh)</h3>
+    <div id="kpiCut" class="kpi">—</div>
+  </div>
+
+  <div class="card">
+    <h3>Referência (MWh)</h3>
+    <div id="kpiRef" class="kpi">—</div>
+  </div>
+
+  <div class="card">
+    <h3>Impacto Financeiro (R$ mm)</h3>
+    <div id="kpiImpact" class="kpi kpiAccent">—</div>
+    <small id="kpiImpactNote"></small>
+  </div>
+
+</div>
+
+  <div class="card">
+    <h2>Evolução mensal</h2>
+    <div id="chartMonthly" class="chart"></div>
+  </div>
+
+  <div class="card">
+    <h2>Quebra por modalidade</h2>
+    <div id="chartReason" class="chart"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
+
+

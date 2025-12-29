@@ -1,0 +1,780 @@
+/* ===============================
+   CONFIG
+================================ */
+const CSV_PATH = "./data/coff_eolica_monthly.csv";   // arquivo agregado mensal
+const MAP_PATH = "./data/mapping_citi.json";
+
+// ====== PLD (via arquivos estáticos gerados no build) ======
+let _PLD_MONTHLY = null;
+let _PLD_META = null;
+
+async function _loadPLDMonthlyOnce(){
+  if (_PLD_MONTHLY) return _PLD_MONTHLY;
+  const resp = await fetch("./data/pld_monthly_avg.json", { cache:"no-store" });
+  if (!resp.ok) throw new Error("Não achei pld_monthly_avg.json no site");
+  _PLD_MONTHLY = await resp.json(); // { "2025-01": 123.45, ... }
+  return _PLD_MONTHLY;
+}
+
+async function _loadPLDMetaOnce(){
+  if (_PLD_META) return _PLD_META;
+  const resp = await fetch("./data/pld_meta.json", { cache:"no-store" });
+  if (!resp.ok) throw new Error("Não achei pld_meta.json no site");
+  _PLD_META = await resp.json(); // { max_dia: "YYYY-MM-DD", updated_at: "..." }
+  return _PLD_META;
+}
+
+async function buscarPLDMonthlyAvg(ym) {
+  const j = await _loadPLDMonthlyOnce();
+  const v = j[ym];
+  if (v === null || v === undefined || v === "") return null;
+  return Number(v);
+}
+
+async function buscarPLDMaxDia(){
+  const meta = await _loadPLDMetaOnce();
+  return meta.max_dia || null;
+}
+
+/* ===============================
+   HELPERS
+================================ */
+
+
+function fmtBRLmm(x){
+  // x em R$ (reais)
+  const mm = x / 1e6;
+  return mm.toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function isoDateFromLastInstante(lastInstante){
+  // lastInstante: "YYYY-MM-DD HH:MM:SS"
+  if(!lastInstante) return null;
+  const iso = lastInstante.replace(" ", "T");
+  const d = new Date(iso);
+  if(isNaN(d)) return null;
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function pldMediaDiariaFromHoras(pldRows){
+  // pldRows: [{hora, pld_medio}, ...]
+  if(!pldRows || !pldRows.length) return null;
+  const s = pldRows.reduce((acc,r)=>acc + Number(r.pld_medio || 0), 0);
+  return s / pldRows.length;
+}
+
+function toNum(x){
+  if(x === null || x === undefined || x === "") return 0;
+  const s = String(x).trim();
+
+  // se tem vírgula, é pt-BR (1.234,56)
+  if (s.includes(",")){
+    const n = Number(s.replace(/\./g,"").replace(",", "."));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  // senão, é decimal com ponto (1234.56)
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+
+}
+function fmtPct(x){
+  return (x*100).toLocaleString("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}) + "%";
+}
+function fmtMWh(x){
+  return x.toLocaleString("pt-BR", {maximumFractionDigits:0});
+}
+function uniq(arr){
+  return [...new Set(arr)].filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b)));
+}
+function reasonNorm(x){
+  const v = (x ?? "").toString().trim().toUpperCase();
+  if(v === "ENE" || v === "CNF" || v === "REL") return v;
+  // pandas às vezes transforma vazio em "NAN"
+  if(v === "" || v === "NAN" || v === "NONE" || v === "NULL") return "SEM";
+  return "SEM";
+}
+function monthLabelFromLastInstante(ym, lastInstante){
+  // quer mostrar último dia disponível do mês (ou último instante)
+  // lastInstante vem do build como string "YYYY-MM-DD HH:MM:SS" ou vazio.
+  if(!lastInstante) return ym;
+  const d = new Date(lastInstante.replace(" ", "T"));
+  if(isNaN(d)) return ym;
+  const dd = String(d.getDate()).padStart(2,"0");
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const yy = d.getFullYear();
+  return `${yy}-${mm}-${dd}`;
+}
+function lastDayOfMonthISO(ym){
+  // ym = "2025-12"
+  if(!ym || !/^\d{4}-\d{2}$/.test(ym)) return null;
+  const [y, m] = ym.split("-").map(Number);
+  // dia 0 do mês seguinte = último dia do mês atual
+  const d = new Date(y, m, 0);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function getSelectedMulti(selectEl){
+  return Array.from(selectEl.selectedOptions).map(o=>o.value);
+}
+
+function setStatus(msg){
+  const el = document.getElementById("status");
+  if(el) el.textContent = msg;
+}
+
+function safeGet(id){
+  const el = document.getElementById(id);
+  if(!el) console.warn("Elemento não encontrado:", id);
+  return el;
+}
+
+/* ===============================
+   LOAD DATA (monthly + mapping)
+================================ */
+async function loadAll(){
+  const [csvText, mapText] = await Promise.all([
+    fetch(CSV_PATH, {cache:"no-store"}).then(r => r.text()),
+    fetch(MAP_PATH, {cache:"no-store"}).then(r => r.text())
+  ]);
+
+  const parsed = Papa.parse(csvText, {
+    header: true,
+    skipEmptyLines: true
+  });
+
+  const rows = (parsed.data || []).map(r => ({
+    mes: (r.mes || "").trim(),                  // YYYY-MM
+    nom_usina: (r.nom_usina || "").trim(),
+    cod_razaorestricao: reasonNorm(r.cod_razaorestricao),
+    curtailment_mwh: toNum(r.curtailment_mwh),
+    generation_mwh: toNum(r.generation_mwh),
+    last_instante: (r.last_instante || "").trim()
+  }));
+
+  let mapping = {};
+  try { mapping = JSON.parse(mapText); } catch(e){ mapping = {}; }
+
+  rows.forEach(r=>{
+    const key = r.nom_usina;
+    const m = mapping[key];
+    r.empresa = (m && m.empresa) ? m.empresa : "Não mapeada";
+    r.tipo_map = (m && m.tipo) ? String(m.tipo).toUpperCase() : "EOL";
+  });
+
+  return rows;
+}
+
+/* ===============================
+   AGGREGATE FOR CHARTS
+   - soma mensal (corte/ref) por mês
+   - e também por razão (ENE/CNF/REL/SEM)
+================================ */
+function aggregateMonthly(rows){
+  const by = new Map();
+
+  for(const r of rows){
+    if(!r.mes) continue;
+    const key = r.mes;
+
+    if(!by.has(key)){
+      by.set(key, {
+        mes: r.mes,
+        last_instante: r.last_instante || "",
+        corte: 0,
+        ref: 0,
+        ENE: 0,
+        CNF: 0,
+        REL: 0,
+        SEM: 0
+      });
+    }
+    const agg = by.get(key);
+
+    // guarda último instante do mês (para label/tooltip)
+    if(r.last_instante && (!agg.last_instante || r.last_instante > agg.last_instante)){
+      agg.last_instante = r.last_instante;
+    }
+
+    agg.corte += r.curtailment_mwh;
+    agg.ref   += r.generation_mwh;
+
+    const rr = reasonNorm(r.cod_razaorestricao);
+    agg[rr] += r.curtailment_mwh;
+  }
+
+  const out = Array.from(by.values()).sort((a,b)=>a.mes.localeCompare(b.mes));
+  out.forEach(d => d.pct = d.ref > 0 ? d.corte/d.ref : 0);
+  return out;
+}
+
+/* ===============================
+   UI POPULATION
+================================ */
+function fillSelectSingle(id, values, includeAll=true){
+  const el = safeGet(id);
+  if(!el) return;
+
+  el.innerHTML = "";
+
+  if(includeAll){
+    const o = document.createElement("option");
+    o.value = "ALL";
+    o.textContent = "Todas";
+    el.appendChild(o);
+  }
+
+  for(const v of values){
+    const o = document.createElement("option");
+    o.value = v;
+    o.textContent = v;
+    el.appendChild(o);
+  }
+}
+
+function fillSelectMulti(id, values){
+  const el = safeGet(id);
+  if(!el) return;
+
+  el.innerHTML = "";
+  for(const v of values){
+    const o = document.createElement("option");
+    o.value = v;
+    o.textContent = v;
+    el.appendChild(o);
+  }
+}
+
+/* ===============================
+   FILTER LOGIC
+================================ */
+let RAW = [];
+
+function currentFilterState(){
+  const reason = safeGet("reason")?.value || "ALL";
+  const tipo = safeGet("tipo")?.value || "ALL";
+  const companies = getSelectedMulti(safeGet("company"));
+  const usinas = getSelectedMulti(safeGet("idons"));
+
+  const mi = safeGet("fromMonth")?.value || "";
+  const mf = safeGet("toMonth")?.value || "";
+
+  return {reason, tipo, companies, usinas, mi, mf};
+}
+
+function rowPasses(r, f){
+  if(f.reason !== "ALL" && reasonNorm(r.cod_razaorestricao) !== f.reason) return false;
+  if(f.tipo !== "ALL" && r.tipo_map !== f.tipo) return false;
+
+  if(f.companies.length){
+    if(!f.companies.includes(r.empresa)) return false;
+  }
+  if(f.usinas.length){
+    if(!f.usinas.includes(r.nom_usina)) return false;
+  }
+  if(f.mi && r.mes < f.mi) return false;
+  if(f.mf && r.mes > f.mf) return false;
+
+  return true;
+}
+function aggregateMonthlyByCompanyWithReasons(rows){
+  // months: labels (YYYY-MM-DD no “fechamento”)
+  // monthKeys: YYYY-MM
+  // companies: lista empresas
+  // series[empresa][i] -> {mesKey,xLabel,corte,ref,pct, ENE,CNF,REL,SEM}
+  const by = new Map(); // key: emp||mes -> agg
+  const byMonthLast = new Map(); // mes -> last_instante max (p/ label)
+
+  for(const r of rows){
+    const emp = r.empresa || "Não mapeada";
+    const mes = r.mes;
+    if(!mes) continue;
+
+    const key = emp + "||" + mes;
+
+    if(!by.has(key)){
+      by.set(key, {
+        empresa: emp,
+        mes,
+        last_instante: r.last_instante || "",
+        corte: 0,
+        ref: 0,
+        ENE: 0,
+        CNF: 0,
+        REL: 0,
+        SEM: 0
+      });
+    }
+    const a = by.get(key);
+
+    // last_instante do par (empresa, mês)
+    if(r.last_instante && (!a.last_instante || r.last_instante > a.last_instante)){
+      a.last_instante = r.last_instante;
+    }
+
+    // last_instante global do mês (pra label)
+    if(r.last_instante && (!byMonthLast.get(mes) || r.last_instante > byMonthLast.get(mes))){
+      byMonthLast.set(mes, r.last_instante);
+    }
+
+    a.corte += r.curtailment_mwh;
+    a.ref   += r.generation_mwh;
+
+    const rr = reasonNorm(r.cod_razaorestricao);
+    a[rr] += r.curtailment_mwh;
+  }
+
+  const companies = uniq(Array.from(new Set(Array.from(by.values()).map(x=>x.empresa))));
+  const monthKeys = uniq(Array.from(new Set(Array.from(by.values()).map(x=>x.mes))));
+
+  const months = monthKeys.map(m => monthLabelFromLastInstante(m, byMonthLast.get(m) || ""));
+
+  const series = {};
+  for(const emp of companies){
+    series[emp] = monthKeys.map(m=>{
+      const a = by.get(emp + "||" + m);
+      const corte = a ? a.corte : 0;
+      const ref   = a ? a.ref : 0;
+      const pct   = ref > 0 ? corte/ref : 0;
+      const last  = a ? a.last_instante : (byMonthLast.get(m) || "");
+      const xLabel = monthLabelFromLastInstante(m, last);
+      return {
+        mesKey: m,
+        xLabel,
+        corte,
+        ref,
+        pct,
+        ENE: a ? a.ENE : 0,
+        CNF: a ? a.CNF : 0,
+        REL: a ? a.REL : 0,
+        SEM: a ? a.SEM : 0
+      };
+    });
+  }
+
+  return { months, monthKeys, companies, series };
+}
+
+function aggregateMonthlyByCompany(rows){
+  // retorna:
+  // {
+  //   months: ["2025-01-31", ...]  (labels já no "último dia")
+  //   monthKeys: ["2025-01", ...]
+  //   companies: ["Auren","Copel",...]
+  //   series: { "Auren": [{mesKey, xLabel, corte, ref, pct}], ... }
+  //   totalByMonth: [{xLabel, corte, ref, pct}]
+  // }
+
+  const byCompanyMonth = new Map(); // key: empresa||mes -> agg
+  const byMonthTotal = new Map();   // key: mes -> total agg
+
+  for(const r of rows){
+    const emp = r.empresa || "Não mapeada";
+    const mes = r.mes;
+    if(!mes) continue;
+
+    const key = emp + "||" + mes;
+
+    if(!byCompanyMonth.has(key)){
+      byCompanyMonth.set(key, {
+        empresa: emp,
+        mes,
+        last_instante: r.last_instante || "",
+        corte: 0,
+        ref: 0
+      });
+    }
+    const a = byCompanyMonth.get(key);
+
+    if(r.last_instante && (!a.last_instante || r.last_instante > a.last_instante)){
+      a.last_instante = r.last_instante;
+    }
+    a.corte += r.curtailment_mwh;
+    a.ref   += r.generation_mwh;
+
+    if(!byMonthTotal.has(mes)){
+      byMonthTotal.set(mes, { mes, last_instante: r.last_instante || "", corte:0, ref:0 });
+    }
+    const t = byMonthTotal.get(mes);
+    if(r.last_instante && (!t.last_instante || r.last_instante > t.last_instante)){
+      t.last_instante = r.last_instante;
+    }
+    t.corte += r.curtailment_mwh;
+    t.ref   += r.generation_mwh;
+  }
+
+  const monthKeys = Array.from(byMonthTotal.keys()).sort();
+  const months = monthKeys.map(m => monthLabelFromLastInstante(m, byMonthTotal.get(m).last_instante));
+
+  const companies = uniq(Array.from(new Set(Array.from(byCompanyMonth.values()).map(x=>x.empresa))));
+
+  const series = {};
+  for(const c of companies){
+    series[c] = monthKeys.map(m=>{
+      const a = byCompanyMonth.get(c + "||" + m);
+      const corte = a ? a.corte : 0;
+      const ref   = a ? a.ref : 0;
+      const pct   = ref>0 ? corte/ref : 0;
+      const last  = a ? a.last_instante : (byMonthTotal.get(m)?.last_instante || "");
+      const xLabel = monthLabelFromLastInstante(m, last);
+      return { mesKey:m, xLabel, corte, ref, pct };
+    });
+  }
+
+  const totalByMonth = monthKeys.map(m=>{
+    const t = byMonthTotal.get(m);
+    const pct = t.ref>0 ? t.corte/t.ref : 0;
+    return {
+      mesKey:m,
+      xLabel: monthLabelFromLastInstante(m, t.last_instante),
+      corte:t.corte,
+      ref:t.ref,
+      pct
+    };
+  });
+
+  return { months, monthKeys, companies, series, totalByMonth };
+}
+
+async function applyFilters(){
+  const f = currentFilterState();
+  const filtered = RAW.filter(r => rowPasses(r, f));
+
+  setStatus(`OK · ${filtered.length.toLocaleString("pt-BR")} linhas filtradas`);
+
+
+  // KPIs (total no período)
+  const totalCorte = filtered.reduce((s,r)=>s+r.curtailment_mwh,0);
+  const totalRef   = filtered.reduce((s,r)=>s+r.generation_mwh,0);
+  const pct = totalRef>0 ? totalCorte/totalRef : 0;
+
+  // -----------------------------
+  // KPI: Impacto Financeiro (mensal)
+  // Impacto = Σ_meses (corte_mwh_mes * pld_medio_mensal_mes)
+  // -----------------------------
+  const impactEl = safeGet("kpiImpact");
+  const noteEl = safeGet("kpiImpactNote");
+
+  if (impactEl) {
+    try {
+      // 1) soma corte por mês (YYYY-MM)
+      const cortePorMes = new Map();
+      for (const r of filtered) {
+        if (!r.mes) continue;
+        cortePorMes.set(r.mes, (cortePorMes.get(r.mes) || 0) + (r.curtailment_mwh || 0));
+      }
+
+      const meses = Array.from(cortePorMes.keys()).sort();
+
+      if (!meses.length) {
+        impactEl.textContent = "—";
+        if (noteEl) noteEl.textContent = "Sem dados no filtro.";
+      } else {
+        // 2) busca PLD médio mensal e soma impacto
+        let impactoR$ = 0;
+        const mesesSemPLD = [];
+
+        for (const ym of meses) {
+          const corteMes = cortePorMes.get(ym) || 0;
+          const pldMes = await buscarPLDMonthlyAvg(ym); // pode vir null
+
+          if (pldMes === null || pldMes === undefined) {
+            mesesSemPLD.push(ym);
+            continue;
+          }
+
+          impactoR$ += corteMes * Number(pldMes);
+        }
+
+        impactEl.textContent = fmtBRLmm(impactoR$);
+
+        if (noteEl) {
+          if (mesesSemPLD.length) {
+            noteEl.textContent =
+              `PLD faltando em: ${mesesSemPLD.slice(0, 8).join(", ")}${mesesSemPLD.length > 8 ? "..." : ""}`;
+          } else {
+            noteEl.textContent = "Σ(corte mensal × PLD médio mensal)";
+          }
+        }
+      }
+    } catch (e) {
+      impactEl.textContent = "—";
+      if (noteEl) noteEl.textContent = "Erro ao buscar PLD mensal.";
+      console.error(e);
+    }
+  }
+
+
+
+
+  safeGet("kpiPct").textContent = fmtPct(pct);
+  safeGet("kpiCut").textContent = fmtMWh(totalCorte);
+  safeGet("kpiRef").textContent = fmtMWh(totalRef);
+
+  // Para os gráficos:
+  const companiesSelected = f.companies || [];
+
+ if(companiesSelected.length >= 2){
+  const comp = aggregateMonthlyByCompanyWithReasons(filtered);
+  drawCharts(comp, true);
+} else {
+  const monthly = aggregateMonthly(filtered);
+  drawCharts(monthly, false);
+}
+}
+
+/* ===============================
+   CASCADE: empresa -> usinas
+   (quando escolhe empresa, lista de usinas vira só daquela(s))
+================================ */
+function refreshUsinaOptionsByCompany(){
+  const companies = getSelectedMulti(safeGet("company"));
+  let rows = RAW;
+
+  if(companies.length){
+    rows = rows.filter(r => companies.includes(r.empresa));
+  }
+  const usinas = uniq(rows.map(r=>r.nom_usina));
+  fillSelectMulti("idons", usinas);
+  applySearchFilter();
+}
+
+function applySearchFilter(){
+  const q = (safeGet("idSearch")?.value || "").trim().toUpperCase();
+  const sel = safeGet("idons");
+  if(!sel) return;
+
+  for(const opt of sel.options){
+    const show = !q || opt.value.toUpperCase().includes(q);
+    opt.style.display = show ? "" : "none";
+  }
+}
+
+/* ===============================
+   CHARTS
+================================ */
+function drawCharts(data, comparative){
+  // Paleta
+  const NAVY  = "#0b1d3a";
+  const GREEN = "#22c55e";
+  const GRAY_DARK  = "#6b7280";
+  const GRAY_LIGHT = "#d1d5db";
+
+  const baseLayout = {
+    margin: { t: 20, r: 60, l: 60, b: 60 },
+    paper_bgcolor: "white",
+    plot_bgcolor: "white",
+    font: { color: "#111827" },
+    xaxis: {
+      title: "Fechamento do mês",
+      type: "category",
+      showgrid: true,
+      gridcolor: "#e5e7eb",
+      zeroline: false,
+      linecolor: "#9ca3af",
+      tickfont: { color: "#111827" },
+      titlefont: { color: "#111827" }
+    },
+    yaxis: {
+      title: "MWh",
+      showgrid: true,
+      gridcolor: "#e5e7eb",
+      zeroline: false,
+      linecolor: "#9ca3af",
+      tickfont: { color: "#111827" },
+      titlefont: { color: "#111827" }
+    },
+    hovermode: "x unified",
+    hoverlabel: {
+      bgcolor: "white",
+      bordercolor: "#111827",
+      font: { color: "#111827" }
+    },
+    legend: {
+      bgcolor: "rgba(255,255,255,0.85)",
+      bordercolor: "#e5e7eb",
+      borderwidth: 1
+    }
+  };
+
+  // ---------------------------
+  // MODO NORMAL (0-1 empresa)
+  // ---------------------------
+  if(!comparative){
+    const x = data.map(d => monthLabelFromLastInstante(d.mes, d.last_instante));
+
+    Plotly.newPlot("chartMonthly", [
+      {
+        x,
+        y: data.map(d => d.corte),
+        type: "bar",
+        name: "Corte (MWh)",
+        marker: { color: GREEN }
+      },
+      {
+        x,
+        y: data.map(d => d.pct * 100),
+        yaxis: "y2",
+        type: "scatter",
+        mode: "lines+markers",
+        name: "% corte",
+        line: { color: NAVY, width: 3 },
+        marker: { color: NAVY, size: 7 }
+      }
+    ], {
+      ...baseLayout,
+      yaxis2: {
+        title: "% corte",
+        overlaying: "y",
+        side: "right",
+        showgrid: false,
+        zeroline: false,
+        linecolor: "#9ca3af",
+        tickfont: { color: "#111827" },
+        titlefont: { color: "#111827" }
+      }
+    }, { displayModeBar: false });
+
+    Plotly.newPlot("chartReason", [
+      { x, y:data.map(d=>d.ENE), type:"bar", name:"ENE", marker:{color: GREEN} },
+      { x, y:data.map(d=>d.CNF), type:"bar", name:"CNF", marker:{color: NAVY} },
+      { x, y:data.map(d=>d.REL), type:"bar", name:"REL", marker:{color: GRAY_DARK} },
+      { x, y:data.map(d=>d.SEM), type:"bar", name:"SEM", marker:{color: GRAY_LIGHT} }
+    ], {
+      ...baseLayout,
+      barmode:"stack",
+      yaxis:{ ...baseLayout.yaxis, title:"Corte (MWh)" }
+    }, { displayModeBar:false });
+
+    return;
+  }
+
+  // ---------------------------
+  // MODO COMPARATIVO (2+ empresas)
+  // data = aggregateMonthlyByCompanyWithReasons()
+  // ---------------------------
+  const x = data.months;
+
+  const paletteCompanies = [GREEN, NAVY, GRAY_DARK, GRAY_LIGHT];
+  const companyColor = {};
+  data.companies.forEach((emp, i) => companyColor[emp] = paletteCompanies[i % paletteCompanies.length]);
+
+  // Gráfico 1: barras corte + linhas % por empresa
+  const tracesTop = [];
+
+  data.companies.forEach(emp => {
+    const s = data.series[emp];
+    tracesTop.push({
+      x,
+      y: s.map(p => p.corte),
+      type: "bar",
+      name: emp,
+      marker: { color: companyColor[emp] }
+    });
+  });
+
+  data.companies.forEach(emp => {
+    const s = data.series[emp];
+    tracesTop.push({
+      x,
+      y: s.map(p => p.pct * 100),
+      yaxis: "y2",
+      type: "scatter",
+      mode: "lines+markers",
+      name: `% corte · ${emp}`,
+      line: { color: companyColor[emp], width: 2 },
+      marker: { color: companyColor[emp], size: 6 }
+    });
+  });
+
+  Plotly.newPlot("chartMonthly", tracesTop, {
+    ...baseLayout,
+    barmode: "group",
+    yaxis2: {
+      title: "% corte",
+      overlaying: "y",
+      side: "right",
+      showgrid: false,
+      zeroline: false,
+      linecolor: "#9ca3af",
+      tickfont: { color: "#111827" },
+      titlefont: { color: "#111827" }
+    }
+  }, { displayModeBar: false });
+
+  // Gráfico 2: stack por modalidade por empresa (pilhas lado a lado)
+  const reasonColor = { ENE: GREEN, CNF: NAVY, REL: GRAY_DARK, SEM: GRAY_LIGHT };
+  const reasons = ["ENE", "CNF", "REL", "SEM"];
+  const tracesBottom = [];
+
+  reasons.forEach(rr => {
+    data.companies.forEach((emp, eidx) => {
+      const s = data.series[emp];
+      tracesBottom.push({
+        x,
+        y: s.map(p => p[rr] || 0),
+        type: "bar",
+        name: rr,
+        marker: { color: reasonColor[rr] },
+        offsetgroup: emp,
+        legendgroup: rr,
+        showlegend: eidx === 0
+      });
+    });
+  });
+
+  Plotly.newPlot("chartReason", tracesBottom, {
+    ...baseLayout,
+    barmode: "stack",
+    yaxis: { ...baseLayout.yaxis, title: "Corte (MWh)" },
+    xaxis: { ...baseLayout.xaxis, title: "Fechamento do mês" }
+  }, { displayModeBar: false });
+
+  return;
+}
+
+/* ===============================
+   INIT
+================================ */
+async function init(){
+  setStatus("Carregando…");
+
+  RAW = await loadAll();
+
+  // opções básicas
+  const empresas = uniq(RAW.map(r=>r.empresa));
+  const tipos = uniq(RAW.map(r=>r.tipo_map));
+  const meses = uniq(RAW.map(r=>r.mes));
+
+  fillSelectSingle("tipo", tipos, true);
+  fillSelectMulti("company", empresas);
+  fillSelectMulti("idons", uniq(RAW.map(r=>r.nom_usina)));
+
+  fillSelectSingle("fromMonth", meses, false);
+  fillSelectSingle("toMonth", meses, false);
+  if(meses.length){
+    safeGet("fromMonth").value = meses[0];
+    safeGet("toMonth").value = meses[meses.length-1];
+  }
+
+  // eventos
+  safeGet("apply").onclick = applyFilters;
+  safeGet("clear").onclick = () => location.reload();
+  safeGet("btnReload").onclick = () => location.reload();
+
+  safeGet("company").addEventListener("change", refreshUsinaOptionsByCompany);
+  safeGet("idSearch").addEventListener("input", applySearchFilter);
+  
+
+
+  setStatus(`OK · ${RAW.length.toLocaleString("pt-BR")} linhas carregadas`);
+  applyFilters();
+}
+
+window.addEventListener("DOMContentLoaded", init);
