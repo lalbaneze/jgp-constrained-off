@@ -31,8 +31,9 @@ jobs:
           python src/update_pld_2025.py
 
       - name: Export PLD JSON to dashboard/data
-        run: |
-          python export_pld_json.py
+      working-directory: coff_eolica_2025
+      run: |
+        python export_pld_json.py
 
       - name: Update COFF monthly (ONS)
         working-directory: dashboard
