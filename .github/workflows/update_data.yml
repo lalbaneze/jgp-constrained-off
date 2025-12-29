@@ -36,8 +36,7 @@ jobs:
 
       - name: Update COFF monthly (ONS)
         run: |
-          cd dashboard
-          python atualizar_coff_monthly.py
+          python dashboard/atualizar_coff_monthly.py
 
       - name: Commit and push if changed
         run: |
