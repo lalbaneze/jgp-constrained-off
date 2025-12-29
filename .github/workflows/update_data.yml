@@ -11,6 +11,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,6 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # --- PLD (CCEE) ---
       - name: Update PLD (CCEE)
         run: |
           python pld_ccee/src/update_pld_2025.py
@@ -33,14 +35,15 @@ jobs:
         run: |
           python export_pld_json.py
 
+      # --- ONS / COFF ---
       - name: Update COFF monthly (ONS)
         run: |
-          python atualizar_coff_monthly.py
+          python dashboard/atualizar_coff_monthly.py
 
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add dashboard/data/*.json dashboard/data/*.csv
-          git commit -m "Auto update data" || echo "No changes"
+          git diff --cached --quiet && echo "No changes" || git commit -m "Auto update data"
           git push
