@@ -28,6 +28,7 @@ jobs:
       - name: Update PLD (CCEE)
         working-directory: pld_ccee
         run: |
+          mkdir -p data
           python src/update_pld_2025.py
 
       - name: Export PLD JSON to dashboard/data
