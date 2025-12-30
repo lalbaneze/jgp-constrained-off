@@ -31,6 +31,12 @@ jobs:
           mkdir -p data
           python src/update_pld_2025.py
 
+      - name: Debug - list DB folder
+        run: |
+          ls -la
+          ls -la pld_ccee
+          ls -la pld_ccee/data || true
+ 
       - name: Export PLD JSON to dashboard/data
         run: |
           python export_pld_json.py
