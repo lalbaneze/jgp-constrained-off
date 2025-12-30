@@ -6,8 +6,8 @@ from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Banco criado pelo update_pld_2025.py na raiz do repo, dentro de /data
-DB_PATH = os.path.join(BASE_DIR, "data", "pld_ccee.sqlite")
+# ✅ caminho correto do DB gerado pelo update_pld_2025
+DB_PATH = os.path.join(BASE_DIR, "pld_ccee", "data", "pld_ccee.sqlite")
 
 OUT_DIR = os.path.join(BASE_DIR, "dashboard", "data")
 OUT_MONTHLY = os.path.join(OUT_DIR, "pld_monthly_avg.json")
@@ -59,6 +59,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
