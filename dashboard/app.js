@@ -1,7 +1,8 @@
 /* ===============================
    CONFIG
 ================================ */
-const CSV_PATH = "./data/coff_eolica_monthly.csv";   // arquivo agregado mensal
+const CSV_PATH = "./data/coff_eolica_monthly.csv";   // eólico (já existe)
+const CSV_SOLAR_PATH = "./data/coff_solar_monthly.csv"; // ✅ NOVO (solar)
 const MAP_PATH = "./data/mapping_citi.json";
 
 // ====== PLD (via arquivos estáticos gerados no build) ======
@@ -35,6 +36,26 @@ async function buscarPLDMaxDia(){
   const meta = await _loadPLDMetaOnce();
   return meta.max_dia || null;
 }
+
+async function loadOptionalCSV(path) {
+  try {
+    const resp = await fetch(path, { cache:"no-store" });
+    if (!resp.ok) return null;
+    const text = await resp.text();
+
+    const parsed = Papa.parse(text, {
+      header: true,
+      skipEmptyLines: true
+    });
+
+    return parsed.data || [];
+  } catch (e) {
+    console.warn("CSV opcional não carregado:", path, e);
+    return null;
+  }
+}
+
+
 
 /* ===============================
    HELPERS
@@ -92,11 +113,20 @@ function uniq(arr){
 }
 function reasonNorm(x){
   const v = (x ?? "").toString().trim().toUpperCase();
-  if(v === "ENE" || v === "CNF" || v === "REL") return v;
-  // pandas às vezes transforma vazio em "NAN"
-  if(v === "" || v === "NAN" || v === "NONE" || v === "NULL") return "SEM";
+
+  if(!v || v === "NAN" || v === "NONE" || v === "NULL") return "SEM";
+
+  if(v === "ENE") return "ENE";
+  if(v === "REL") return "REL";
+
+  // às vezes vem "CNF " ou "CONF"
+  if(v === "CNF" || v === "CONF") return "CNF";
+
   return "SEM";
 }
+
+
+
 function monthLabelFromLastInstante(ym, lastInstante){
   // quer mostrar último dia disponível do mês (ou último instante)
   // lastInstante vem do build como string "YYYY-MM-DD HH:MM:SS" ou vazio.
@@ -135,13 +165,26 @@ function safeGet(id){
   return el;
 }
 
+function pickFirstKey(obj, patterns){
+  if (!obj) return null;
+  const keys = Object.keys(obj);
+  for (const p of patterns){
+    const re = new RegExp(p, "i");
+    const k = keys.find(x => re.test(x));
+    if (k) return k;
+  }
+  return null;
+}
+
+
 /* ===============================
    LOAD DATA (monthly + mapping)
 ================================ */
 async function loadAll(){
-  const [csvText, mapText] = await Promise.all([
+  const [csvText, mapText, solarRowsRaw] = await Promise.all([
     fetch(CSV_PATH, {cache:"no-store"}).then(r => r.text()),
-    fetch(MAP_PATH, {cache:"no-store"}).then(r => r.text())
+    fetch(MAP_PATH, {cache:"no-store"}).then(r => r.text()),
+    loadOptionalCSV(CSV_SOLAR_PATH) // ✅ novo (pode vir null)
   ]);
 
   const parsed = Papa.parse(csvText, {
@@ -149,27 +192,72 @@ async function loadAll(){
     skipEmptyLines: true
   });
 
-  const rows = (parsed.data || []).map(r => ({
-    mes: (r.mes || "").trim(),                  // YYYY-MM
-    nom_usina: (r.nom_usina || "").trim(),
-    cod_razaorestricao: reasonNorm(r.cod_razaorestricao),
-    curtailment_mwh: toNum(r.curtailment_mwh),
-    generation_mwh: toNum(r.generation_mwh),
-    last_instante: (r.last_instante || "").trim()
-  }));
+  const rowsEolica = (parsed.data || []).map(r => ({
+  mes: (r.mes || "").trim(),
+  nom_usina: (r.nom_usina || "").trim(),
+  cod_razaorestricao: reasonNorm(r.cod_razaorestricao),
+  curtailment_mwh: toNum(r.curtailment_mwh),
+  generation_mwh: toNum(r.generation_mwh),
+  last_instante: (r.last_instante || "").trim(),
+  tipo_map: "EOL"   // ✅ NOVO
+}));
+
+
+// ---------- SOLAR (opcional) ----------
+const rowsSolar = (solarRowsRaw || []).map(r => ({
+  mes: (r.mes || "").trim(),                  // igual ao eólico
+  nom_usina: (r.nom_usina || "").trim(),      // igual ao eólico
+  cod_razaorestricao: reasonNorm(r.cod_razaorestricao), // ✅ pega ENE/CNF/REL
+  curtailment_mwh: toNum(r.curtailment_mwh),
+  generation_mwh: toNum(r.generation_mwh),
+  last_instante: (r.last_instante || "").trim(),
+  tipo_map: "SOL"
+}));
+
+// corta solar a partir de 2025-01
+const rowsSolar2025 = rowsSolar.filter(r => r.mes >= "2025-01");
+
+
+  
+  // junta (se não tiver solar, rowsSolar é [])
+  const rows = rowsEolica.concat(rowsSolar2025);
+
 
   let mapping = {};
   try { mapping = JSON.parse(mapText); } catch(e){ mapping = {}; }
 
+const mappingNorm = {};
+for (const k in mapping) {
+  const nk = normKey(k);
+  if (!(nk in mappingNorm)) mappingNorm[nk] = mapping[k];
+}
+
+
+function normKey(s){
+  return (s || "")
+    .toString()
+    .trim()
+    .toUpperCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // tira acentos
+    .replace(/\s+/g, " "); // espaços múltiplos
+}
+
+
   rows.forEach(r=>{
     const key = r.nom_usina;
-    const m = mapping[key];
+    const m = mapping[key] || mappingNorm[normKey(key)];
     r.empresa = (m && m.empresa) ? m.empresa : "Não mapeada";
-    r.tipo_map = (m && m.tipo) ? String(m.tipo).toUpperCase() : "EOL";
+
+// ✅ só sobrescreve se existir mapping
+if (m && m.tipo) {
+  r.tipo_map = String(m.tipo).toUpperCase();
+}
+
   });
 
   return rows;
 }
+
 
 /* ===============================
    AGGREGATE FOR CHARTS
@@ -193,7 +281,8 @@ function aggregateMonthly(rows){
         CNF: 0,
         REL: 0,
         SEM: 0
-      });
+     });
+
     }
     const agg = by.get(key);
 
@@ -642,11 +731,11 @@ function drawCharts(data, comparative){
     }, { displayModeBar: false });
 
     Plotly.newPlot("chartReason", [
-      { x, y:data.map(d=>d.ENE), type:"bar", name:"ENE", marker:{color: GREEN} },
-      { x, y:data.map(d=>d.CNF), type:"bar", name:"CNF", marker:{color: NAVY} },
-      { x, y:data.map(d=>d.REL), type:"bar", name:"REL", marker:{color: GRAY_DARK} },
-      { x, y:data.map(d=>d.SEM), type:"bar", name:"SEM", marker:{color: GRAY_LIGHT} }
-    ], {
+  { x, y:data.map(d=>d.ENE), type:"bar", name:"ENE", marker:{color: GREEN} },
+  { x, y:data.map(d=>d.CNF), type:"bar", name:"CNF", marker:{color: NAVY} },
+  { x, y:data.map(d=>d.REL), type:"bar", name:"REL", marker:{color: GRAY_DARK} },
+  { x, y:data.map(d=>d.SEM), type:"bar", name:"SEM", marker:{color: GRAY_LIGHT} }
+  ], {
       ...baseLayout,
       barmode:"stack",
       yaxis:{ ...baseLayout.yaxis, title:"Corte (MWh)" }
@@ -709,8 +798,10 @@ function drawCharts(data, comparative){
   }, { displayModeBar: false });
 
   // Gráfico 2: stack por modalidade por empresa (pilhas lado a lado)
-  const reasonColor = { ENE: GREEN, CNF: NAVY, REL: GRAY_DARK, SEM: GRAY_LIGHT };
   const reasons = ["ENE", "CNF", "REL", "SEM"];
+  const reasonColor = { ENE: GREEN, CNF: NAVY, REL: GRAY_DARK, SEM: GRAY_LIGHT };
+
+
   const tracesBottom = [];
 
   reasons.forEach(rr => {
