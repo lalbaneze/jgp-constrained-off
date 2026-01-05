@@ -112,7 +112,7 @@
     "tipo": "EOL"
   },
   "CONJ. CAETITÉ 123": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. CAETITÉ A": {
@@ -132,15 +132,15 @@
     "tipo": "EOL"
   },
   "CONJ. CALANGO 1": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. CALANGO 2": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. CALANGO 3": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. CAMPO DOS VENTOS": {
@@ -176,15 +176,15 @@
     "tipo": "EOL"
   },
   "CONJ. CHAFARIZ NORTE": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. CHAFARIZ SUL I": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. CHAFARIZ SUL II": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. CHAPADA I": {
@@ -384,7 +384,7 @@
     "tipo": "EOL"
   },
   "CONJ. OITIS": {
-    "empresa": "nan",
+    "empresa": "Neoenergia",
     "tipo": "EOL"
   },
   "CONJ. OLHO D'ÁGUA": {
@@ -489,7 +489,7 @@
   },
   "CONJ. SERRA DA BABILÔNIA": {
     "empresa": "nan",
-    "tipo": "EOL"
+    "tipo": "SOL"
   },
   "CONJ. SERRA DAS ALMAS II 500 KV": {
     "empresa": "nan",
@@ -513,7 +513,7 @@
   },
   "CONJ. SERRA DO MATO": {
     "empresa": "nan",
-    "tipo": "EOL"
+    "tipo": "SOL"
   },
   "CONJ. SERRA DO MEL A": {
     "empresa": "Copel",
@@ -662,5 +662,297 @@
   "XANGRI-LÁ": {
     "empresa": "nan",
     "tipo": "EOL"
+  },
+  "CONJ. ARARIPE III": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. CHAPADINHA": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. VENTOS DO PIAUÍ II": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. VENTOS DO PIAUÍ III": {
+    "empresa": "Auren",
+    "tipo": "EOL"
+  },
+  "CONJ. BARREIRAS II 500 KV": {
+    "empresa": "Equatorial",
+    "tipo": "SOL"
+  },
+  "CONJ. BJL": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. BOM JESUS": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. FUTURA": {
+    "empresa": "Eneva",
+    "tipo": "SOL"
+  },
+  "CONJ. HORIZONTE": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. IRECÊ 138 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. ITUVERAVA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. JUAZEIRO II 230 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. LAPA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SÃO PEDRO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SERTÃO SOLAR BARREIRAS": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SOL DO SERTÃO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. ABAIARA 230 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. ALEX": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. BANABUIÚ": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. CALCÁRIO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. LAVRAS": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. LINS": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. MAURITI": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SOL DO FUTURO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "FLOR DE MANDACARU": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "PITOMBEIRA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. LUZIA": {
+    "empresa": "Neoenergia",
+    "tipo": "SOL"
+  },
+  "CONJ. RIO ALTO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SANTA LUZIA II 500 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. BELMONTE": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. BOM NOME": {
+    "empresa": "Kroma",
+    "tipo": "SOL"
+  },
+  "CONJ. BRÍGIDA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. CIRANDA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SERRITA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. TACARATU": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. GILBUÉS II 500 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. MARANGATU": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. NOVA OLINDA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. RIBEIRO GONÇALVES": {
+    "empresa": "Equatorial",
+    "tipo": "SOL"
+  },
+  "CONJ. RIBEIRO GONÇALVES 500 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SÃO BASÍLIO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SJP": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "SOL DO PIAUÍ": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "ASSÚ V": {
+    "empresa": "Engie",
+    "tipo": "SOL"
+  },
+  "CONJ. AÇÚ III 230 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. ASSU SOL": {
+    "empresa": "Engie",
+    "tipo": "SOL"
+  },
+  "CONJ. FLORESTA": {
+    "empresa": "Engie",
+    "tipo": "SOL"
+  },
+  "CONJ. MONTE VERDE SOLAR": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SERRA DO MEL C": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SIMPLICE": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. ARAXÁ": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. ARINOS 2 500 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. BOA SORTE": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. FRANCISCO SÁ": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. HELIO VALGAS": {
+    "empresa": "Comerc",
+    "tipo": "SOL"
+  },
+  "CONJ. JAIBA 138 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. JAÍBA 4 (DISTRIBUIÇÃO)": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. JAÍBA V": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. JANAÚBA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. LAR DO SOL": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. PARACATU": {
+    "empresa": "Engie",
+    "tipo": "SOL"
+  },
+  "CONJ. PARACATU 4 500 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. PIRAPORA 2": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. SOL DO CERRADO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. TRÊS MARIAS 3 138 KV": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. VARZEA DA PALMA 7": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. VISTA ALEGRE - JANAÚBA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. BOA HORA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. CASTILHO": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. DRACENA": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. GUAIMBÊ": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. PEDRANÓPOLIS": {
+    "empresa": "nan",
+    "tipo": "SOL"
+  },
+  "CONJ. PEREIRA BARRETO": {
+    "empresa": "nan",
+    "tipo": "SOL"
   }
 }
