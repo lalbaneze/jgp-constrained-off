@@ -1,5 +1,10 @@
 name: Update PLD + ONS
 
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 10 * * *"
+
 permissions:
   contents: write
 
