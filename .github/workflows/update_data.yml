@@ -46,6 +46,31 @@ jobs:
         run: |
           python atualizar_coff_monthly.py
 
+      - name: Debug EOL output head/tail
+        run: |
+          echo "---- ls dashboard/data ----"
+          ls -la dashboard/data
+          echo "---- head EOL CSV ----"
+          head -n 5 dashboard/data/coff_eolica_monthly.csv || true
+          echo "---- tail EOL CSV ----"
+          tail -n 5 dashboard/data/coff_eolica_monthly.csv || true
+
+      - name: Debug EOL counts by month
+        run: |
+          python - << 'PY'
+          import pandas as pd
+          p="dashboard/data/coff_eolica_monthly.csv"
+          df=pd.read_csv(p)
+          print("cols:", df.columns.tolist())
+          print("rows:", len(df))
+          col = "ym" if "ym" in df.columns else ("mes" if "mes" in df.columns else None)
+          print("month_col:", col)
+          if col:
+            print(df[col].value_counts().sort_index().tail(30))
+          PY
+
+
+
       - name: Update COFF monthly (ONS) - SOL
         working-directory: dashboard
         run: |
