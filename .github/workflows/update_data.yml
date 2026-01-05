@@ -81,36 +81,66 @@ jobs:
           python - << 'PY'
           import pandas as pd
           from datetime import datetime
+          import re
 
-          def parse_ym(s):
-            return pd.to_datetime(s + "-01", errors="coerce")
+          def ym_to_dt(s):
+            # "2025-01" -> datetime(2025,1,1)
+            return pd.to_datetime(str(s) + "-01", errors="coerce")
 
-          def check(path, name, min_months=10, min_companies=8):
+          def check_eol(path, min_months=10, min_companies=8):
             df = pd.read_csv(path)
-            print(f"{name}: rows={len(df)} cols={df.columns.tolist()}")
+            print(f"EOL: rows={len(df)} cols={df.columns.tolist()}")
 
-            # colunas obrigatórias do agregado
             required = {"ym","empresa","coff_mwh","ger_mwh"}
             missing = required - set(df.columns)
-            assert not missing, f"{name}: missing cols {missing}"
+            assert not missing, f"EOL: missing cols {missing}"
 
-            # meses e empresas
             n_months = df["ym"].nunique(dropna=True)
             n_comp = df["empresa"].nunique(dropna=True)
-            assert n_months >= min_months, f"{name}: too few months ({n_months})"
-            assert n_comp >= min_companies, f"{name}: too few companies ({n_comp})"
+            assert n_months >= min_months, f"EOL: too few months ({n_months})"
+            assert n_comp >= min_companies, f"EOL: too few companies ({n_comp})"
 
-            # mês mais recente não pode ser muito antigo
             max_ym = str(df["ym"].dropna().max())
-            max_dt = parse_ym(max_ym)
+            max_dt = ym_to_dt(max_ym)
             now = datetime.utcnow().replace(day=1)
-            # aceita até 2 meses de defasagem (ajustável)
-            assert max_dt >= (now - pd.DateOffset(months=2)), f"{name}: max ym too old ({max_ym})"
+            assert max_dt >= (now - pd.DateOffset(months=2)), f"EOL: max ym too old ({max_ym})"
+            print(f"EOL: OK months={n_months} companies={n_comp} max_ym={max_ym}")
 
-            print(f"{name}: OK months={n_months} companies={n_comp} max_ym={max_ym}")
+          def check_sol(path, min_months=10, min_usinas=50):
+            df = pd.read_csv(path)
+            print(f"SOL: rows={len(df)} cols={df.columns.tolist()}")
 
-          check("dashboard/data/coff_eolica_monthly.csv", "EOL", min_months=10, min_companies=8)
-          check("dashboard/data/coff_solar_monthly.csv", "SOL", min_months=10, min_companies=8)
+            required = {"mes","nom_usina","cod_razaorestricao","curtailment_mwh","generation_mwh"}
+            missing = required - set(df.columns)
+            assert not missing, f"SOL: missing cols {missing}"
+
+            # mês tem que ser YYYY-MM
+            df["mes"] = df["mes"].astype(str).str.strip()
+            assert df["mes"].str.match(r"^\d{4}-\d{2}$", na=False).any(), "SOL: mes not in YYYY-MM"
+
+            n_months = df["mes"].nunique(dropna=True)
+            n_usinas = df["nom_usina"].nunique(dropna=True)
+            assert n_months >= min_months, f"SOL: too few months ({n_months})"
+            assert n_usinas >= min_usinas, f"SOL: too few usinas ({n_usinas})"
+
+            # razão não pode virar NAN (string "nan" / vazio)
+            rr = df["cod_razaorestricao"].astype(str).str.strip().str.upper()
+            bad = rr.isin(["", "NAN", "NONE", "NULL"])
+            assert bad.mean() < 0.01, f"SOL: too many empty/NAN reasons ({bad.mean()*100:.1f}%)"
+
+            # último mês recente
+            max_mes = str(df["mes"].dropna().max())
+            max_dt = ym_to_dt(max_mes)
+            now = datetime.utcnow().replace(day=1)
+            assert max_dt >= (now - pd.DateOffset(months=2)), f"SOL: max mes too old ({max_mes})"
+
+            # corte total tem que ser > 0 (senão veio tudo zerado)
+            corte_sum = pd.to_numeric(df["curtailment_mwh"], errors="coerce").fillna(0).sum()
+            assert corte_sum > 0, "SOL: total curtailment is zero (looks broken)"
+            print(f"SOL: OK months={n_months} usinas={n_usinas} max_mes={max_mes} corte_sum={corte_sum:.2f}")
+
+          check_eol("dashboard/data/coff_eolica_monthly.csv", min_months=10, min_companies=8)
+          check_sol("dashboard/data/coff_solar_monthly.csv", min_months=10, min_usinas=50)
 
           print("Sanity OK ✅")
           PY
