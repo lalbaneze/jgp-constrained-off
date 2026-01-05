@@ -192,15 +192,35 @@ async function loadAll(){
     skipEmptyLines: true
   });
 
-  const rowsEolica = (parsed.data || []).map(r => ({
-  mes: (r.mes || "").trim(),
-  nom_usina: (r.nom_usina || "").trim(),
-  cod_razaorestricao: reasonNorm(r.cod_razaorestricao),
-  curtailment_mwh: toNum(r.curtailment_mwh),
-  generation_mwh: toNum(r.generation_mwh),
-  last_instante: (r.last_instante || "").trim(),
-  tipo_map: "EOL"   // ✅ NOVO
-}));
+  const rowsEolica = (parsed.data || []).map(r => {
+  // Suporta 2 formatos:
+  // (A) antigo: mes/nom_usina/curtailment_mwh/generation_mwh/last_instante/cod_razaorestricao
+  // (B) novo (Actions): ym/empresa/coff_mwh/ger_mwh/coff_pct
+
+  const mes = ((r.mes ?? r.ym) || "").toString().trim();
+
+  // Se vier agregado por empresa (novo), usamos empresa como "nom_usina" só pra não sumir do dashboard
+  const nom_usina = ((r.nom_usina ?? r.empresa) || "").toString().trim();
+
+  const corte = toNum(r.curtailment_mwh ?? r.coff_mwh);
+  const ger   = toNum(r.generation_mwh ?? r.ger_mwh);
+
+  const last_inst = ((r.last_instante ?? "") || "").toString().trim();
+
+  // No formato novo não existe razão -> SEM
+  const razao = (r.cod_razaorestricao !== undefined) ? reasonNorm(r.cod_razaorestricao) : "SEM";
+
+  return {
+    mes,
+    nom_usina,
+    cod_razaorestricao: razao,
+    curtailment_mwh: corte,
+    generation_mwh: ger,
+    last_instante: last_inst,
+    tipo_map: "EOL"
+  };
+});
+
 
 
 // ---------- SOLAR (opcional) ----------
