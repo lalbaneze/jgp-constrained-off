@@ -36,15 +36,52 @@ jobs:
         run: |
           python export_pld_json.py
 
-      - name: Update COFF monthly (ONS)
+      - name: Update COFF monthly (ONS) - EOL
         working-directory: dashboard
         run: |
           python atualizar_coff_monthly.py
+
+      - name: Update COFF monthly (ONS) - SOL
+        working-directory: dashboard
+        run: |
+          python scripts/update_coff_solar_monthly_v3.py
+
+      - name: Sanity check - prevent partial overwrite
+        run: |
+          python - << 'PY'
+          import os
+
+          def count_rows(p):
+            if not os.path.exists(p):
+              print("MISSING:", p); return -1
+            with open(p, "r", encoding="utf-8") as f:
+              return sum(1 for _ in f) - 1
+
+          eol = "dashboard/data/coff_eolica_monthly.csv"
+          sol = "dashboard/data/coff_solar_monthly.csv"
+
+          eol_n = count_rows(eol)
+          sol_n = count_rows(sol)
+
+          print("Rows eol:", eol_n)
+          print("Rows sol:", sol_n)
+
+          # Ajuste para o seu histórico real:
+          if eol_n != -1 and eol_n < 1000:
+            raise SystemExit("EOL too small -> aborting")
+          if sol_n != -1 and sol_n < 500:
+            raise SystemExit("SOL too small -> aborting")
+
+          print("Sanity OK")
+          PY
+
 
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add dashboard/data/*.json dashboard/data/*.csv
+          git add dashboard/data/pld_monthly_avg.json dashboard/data/pld_meta.json \
+          dashboard/data/coff_eolica_monthly.csv dashboard/data/coff_solar_monthly.csv \
+          dashboard/data/mapping_citi.json
           git commit -m "Auto update data" || echo "No changes"
           git push
