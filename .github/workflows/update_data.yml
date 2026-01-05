@@ -79,30 +79,40 @@ jobs:
       - name: Sanity check - prevent partial overwrite
         run: |
           python - << 'PY'
-          import os
+          import pandas as pd
+          from datetime import datetime
 
-          def count_rows(p):
-            if not os.path.exists(p):
-              print("MISSING:", p); return -1
-            with open(p, "r", encoding="utf-8") as f:
-              return sum(1 for _ in f) - 1
+          def parse_ym(s):
+            return pd.to_datetime(s + "-01", errors="coerce")
 
-          eol = "dashboard/data/coff_eolica_monthly.csv"
-          sol = "dashboard/data/coff_solar_monthly.csv"
+          def check(path, name, min_months=10, min_companies=8):
+            df = pd.read_csv(path)
+            print(f"{name}: rows={len(df)} cols={df.columns.tolist()}")
 
-          eol_n = count_rows(eol)
-          sol_n = count_rows(sol)
+            # colunas obrigatórias do agregado
+            required = {"ym","empresa","coff_mwh","ger_mwh"}
+            missing = required - set(df.columns)
+            assert not missing, f"{name}: missing cols {missing}"
 
-          print("Rows eol:", eol_n)
-          print("Rows sol:", sol_n)
+            # meses e empresas
+            n_months = df["ym"].nunique(dropna=True)
+            n_comp = df["empresa"].nunique(dropna=True)
+            assert n_months >= min_months, f"{name}: too few months ({n_months})"
+            assert n_comp >= min_companies, f"{name}: too few companies ({n_comp})"
 
-          # Ajuste para o seu histórico real:
-          if eol_n != -1 and eol_n < 1000:
-            raise SystemExit("EOL too small -> aborting")
-          if sol_n != -1 and sol_n < 500:
-            raise SystemExit("SOL too small -> aborting")
+            # mês mais recente não pode ser muito antigo
+            max_ym = str(df["ym"].dropna().max())
+            max_dt = parse_ym(max_ym)
+            now = datetime.utcnow().replace(day=1)
+            # aceita até 2 meses de defasagem (ajustável)
+            assert max_dt >= (now - pd.DateOffset(months=2)), f"{name}: max ym too old ({max_ym})"
 
-          print("Sanity OK")
+            print(f"{name}: OK months={n_months} companies={n_comp} max_ym={max_ym}")
+
+          check("dashboard/data/coff_eolica_monthly.csv", "EOL", min_months=10, min_companies=8)
+          check("dashboard/data/coff_solar_monthly.csv", "SOL", min_months=10, min_companies=8)
+
+          print("Sanity OK ✅")
           PY
 
 
