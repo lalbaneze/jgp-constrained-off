@@ -1,0 +1,77 @@
+name: COFF solar — gerar TESTE e avisar se mudou
+
+on:
+  schedule:
+    - cron: "10 10 * * *"   # 07:10 Brasil (UTC-3)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas requests
+
+      - name: Build TEST (does not touch official)
+        run: |
+          python dashboard/scripts/update_coff_solar_monthly_test.py
+
+      - name: Check diff TEST vs OFFICIAL
+        id: diffcheck
+        run: |
+          python - <<'PY'
+          import os, hashlib
+
+          off = "dashboard/data/coff_solar_monthly.csv"
+          tst = "dashboard/data/coff_solar_monthly_test.csv"
+
+          def sha256(path):
+            h = hashlib.sha256()
+            with open(path, "rb") as f:
+              for chunk in iter(lambda: f.read(1024*1024), b""):
+                h.update(chunk)
+            return h.hexdigest()
+
+          if not os.path.exists(tst):
+            raise SystemExit("TEST file not found: " + tst)
+
+          changed = True
+          if os.path.exists(off):
+            changed = (sha256(off) != sha256(tst))
+
+          print("changed=" + ("true" if changed else "false"))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write("changed=" + ("true" if changed else "false") + "\n")
+          PY
+
+      - name: Create/Update PR with TEST file only (if changed)
+        if: steps.diffcheck.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: bot/coff-solar-test
+          title: "COFF solar: TESTE mudou (revisar antes de publicar)"
+          commit-message: "Update COFF solar TESTE (ONS)"
+          body: |
+            Atualização diária gerou diferença entre:
+            - oficial: dashboard/data/coff_solar_monthly.csv
+            - teste:   dashboard/data/coff_solar_monthly_test.csv
+
+            ✅ O site NÃO foi atualizado automaticamente.
+            Revise o diff do TESTE. Se estiver ok, promova manualmente copiando:
+            coff_solar_monthly_test.csv -> coff_solar_monthly.csv
+          add-paths: |
+            dashboard/data/coff_solar_monthly_test.csv
