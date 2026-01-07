@@ -58,6 +58,24 @@ jobs:
             f.write("changed=" + ("true" if changed else "false") + "\n")
           PY
 
+      - name: Auto-check summary (TEST vs OFFICIAL)
+        id: autosum
+        run: |
+          python - <<'PY'
+          import subprocess, os
+          out = subprocess.check_output(["python","dashboard/scripts/coff_auto_check.py","solar"], text=True)
+          kv = {}
+          for line in out.strip().splitlines():
+            if "=" in line:
+              k,v = line.split("=",1)
+              kv[k.strip()] = v.strip()
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write(f"verdict={kv.get('verdict','')}\n")
+            f.write(f"summary={kv.get('summary','')}\n")
+            f.write(f"changed_months={kv.get('changed_months','')}\n")
+          print(out)
+          PY
+
       - name: Create/Update PR with TEST file only (if changed)
         if: steps.diffcheck.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
@@ -66,9 +84,12 @@ jobs:
           title: "COFF solar: TESTE mudou (revisar antes de publicar)"
           commit-message: "Update COFF solar TESTE (ONS)"
           body: |
+            **Auto-check:** ${{ steps.autosum.outputs.summary }}
+
             Atualização diária gerou diferença entre:
             - oficial: dashboard/data/coff_solar_monthly.csv
             - teste:   dashboard/data/coff_solar_monthly_test.csv
+
 
             ✅ O site NÃO foi atualizado automaticamente.
             Revise o diff do TESTE. Se estiver ok, promova manualmente copiando:
