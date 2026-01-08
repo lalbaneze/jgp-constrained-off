@@ -1,0 +1,80 @@
+name: PLD — atualizar e PUBLICAR automaticamente
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 10 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update-pld:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Update PLD DB (CCEE)
+        run: |
+          python pld_ccee/src/update_pld_2025.py
+
+      - name: Export PLD TEST JSON
+        run: |
+          python export_pld_json_test.py
+
+      # Só publica se max_dia do TEST for maior que o oficial (tem dado novo)
+      - name: Decide if publish
+        id: decide
+        run: |
+          python - << 'PY'
+          import json, os
+
+          def read(path):
+              if not os.path.exists(path):
+                  return {}
+              with open(path, "r", encoding="utf-8") as f:
+                  return json.load(f)
+
+          test = read("dashboard/data/pld_meta_test.json")
+          off  = read("dashboard/data/pld_meta.json")
+
+          test_max = test.get("max_dia") or ""
+          off_max  = off.get("max_dia") or ""
+
+          publish = bool(test_max and (test_max > off_max))
+          print("test_max:", test_max)
+          print("off_max :", off_max)
+          print("publish :", publish)
+
+          # output pro GitHub
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"publish={'true' if publish else 'false'}\n")
+              f.write(f"test_max={test_max}\n")
+              f.write(f"off_max={off_max}\n")
+          PY
+
+      - name: Publish TEST -> OFFICIAL (if needed)
+        if: steps.decide.outputs.publish == 'true'
+        run: |
+          cp dashboard/data/pld_monthly_avg_test.json dashboard/data/pld_monthly_avg.json
+          cp dashboard/data/pld_meta_test.json dashboard/data/pld_meta.json
+
+      - name: Commit and push (if changed)
+        if: steps.decide.outputs.publish == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dashboard/data/pld_monthly_avg.json dashboard/data/pld_meta.json
+          git commit -m "Auto update PLD (max_dia=${{ steps.decide.outputs.test_max }})" || echo "No changes"
+          git push
