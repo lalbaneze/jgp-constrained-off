@@ -29,6 +29,18 @@ jobs:
         run: |
           python pld_ccee/src/update_pld_2025.py
 
+      - name: Debug PLD max_dia from sqlite
+        run: |
+          python - << 'PY'
+          import sqlite3
+          con = sqlite3.connect("pld_ccee/data/pld_ccee.sqlite")
+          r = con.execute("SELECT MIN(DIA), MAX(DIA) FROM pld_medio WHERE length(DIA)=10").fetchone()
+          con.close()
+          print("min_dia:", r[0])
+          print("max_dia:", r[1])
+          PY
+
+
       - name: Export PLD TEST JSON
         run: |
           python export_pld_json_test.py
